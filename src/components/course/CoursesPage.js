@@ -1,3 +1,4 @@
+import toastr from 'toastr';
 import React, {PropTypes} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
@@ -9,15 +10,23 @@ class CoursesPage extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.redirectToAddCoursePage = this.redirectToAddCoursePage.bind(this);
-  }
-
-  courseRow(course, index) {
-    return <div key={index}>{course.title}</div>;
+    this.onDeleteCourse = this.onDeleteCourse.bind(this);
   }
 
   redirectToAddCoursePage() {
     browserHistory.push('/course');
   }
+
+  onDeleteCourse(course) {
+    if(confirm(`Are you sure you want to delete the course "${course.title}"?`)) {
+      this.props.actions.deleteCourse(course)
+        .then(() => toastr.success('Course deleted'))
+        .catch(error => {
+          toastr.error(error);
+        });
+    }
+  }
+
 
   render() {
     const {courses} = this.props;
@@ -29,7 +38,7 @@ class CoursesPage extends React.Component {
                value="Add Course"
                className="btn btn-primary"
                onClick={this.redirectToAddCoursePage}/>
-        <CourseList courses={courses}/>
+        <CourseList courses={courses} onDeleteCourse={this.onDeleteCourse}/>
       </div>
     );
   }
